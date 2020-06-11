@@ -8,80 +8,70 @@
 
 using namespace std;
 
-namespace itertools{
+namespace itertools
+{
 
-	class plus
+    class plus
     {
     public:
         template <typename T2>
         T2 operator()(T2 a, T2 b) { return a + b; }
     };
 
-	template <typename Container,typename Function = plus>
-	class accumulate{
-		
-		private:
-			Container container;
-			Function func;
+    template <typename T, typename F = plus>
+    class accumulate
+    {
+    private:
+        T m_container;
+        F m_function;
 
-		public:
-			accumulate( Container cont, Function func = plus()):container(cont),func(func){}
-
-		class iterator {
-
-			private:
-				decltype(*(container.begin())) sum;
-				typename Container::iterator pos;
-				typename Container::iterator end;
-				Function func;
-
-			public:
-
-				iterator(typename Container::iterator p,typename Container::iterator end,Function func): 
-					pos(p),end(end),func(func),sum(*pos) {
-				}
-
-
-				decltype(*(container.begin())) operator*() const
+    public:
+        /* the iterator */
+        class iterator
+        {
+        public:
+            iterator(typename T::iterator from, typename T::iterator to, F func) : m_begin(from),
+                                                                                   m_end(to),
+                                                                                   m_ifunction(func),
+                                                                                   m_current_sum(*from) {}
+            iterator(const iterator &other) : m_begin(other.m_begin),
+                                              m_end(other.m_end),
+                                              m_ifunction(other.m_ifunction),
+                                              m_current_sum(other.m_current_sum) {}
+            decltype(*(m_container.begin())) operator*() const
             {
-                return sum;
+                return m_current_sum;
             }
-				iterator& operator++() {
-					++pos;
-					if(pos!=end){
-						sum=func(sum,*(pos));
-					}
-					return *this;
-				}
+            iterator &operator++()
+            {
+                
+                return *this;
+            }
+            bool operator!=(const iterator &other) const
+            {
+                return false
+				;
+            }
 
-				// i++;
-				iterator operator++(int) {
-					iterator tmp= *this;
-					pos++;
-					sum=func(sum,*(pos));
-					return tmp;
-				}
+        private:
+            typename T::iterator m_begin;
+            typename T::iterator m_end;
+            F m_ifunction;
+            decltype(*(m_container.begin())) m_current_sum;
+        };
 
-				bool operator==(const iterator& rhs)  {
-					return pos == rhs.pos;
-				}
-
-				bool operator!=(const iterator& rhs)  {
-					return pos != rhs.pos;
-				}
-			};  // END OF CLASS ITERATOR
-
-			iterator begin() {
-				return iterator(container.begin(),container.end(),func);
-				
-			}
-
-			iterator end() {
-				return iterator(container.end(),container.end(),func);
-			}
-
-
-	};
-}
-
+    public:
+        /* accumulate methods - decleration */
+        accumulate(T container, F func = plus()) : m_container(container),
+                                                   m_function(func) {}
+        iterator begin()
+        {
+            return iterator{m_container.begin(), m_container.end(), m_function};
+        }
+        iterator end()
+        {
+            return iterator{m_container.end(), m_container.end(), m_function};
+        }
+    };
+} 
 #endif

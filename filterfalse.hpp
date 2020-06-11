@@ -44,7 +44,7 @@ namespace itertools{
             }
             bool operator!=(const iterator &other) const
             {
-                //return m_begin != other.m_begin;
+                return false;
             }
             decltype(*(m_container.begin())) operator*() const
             {
