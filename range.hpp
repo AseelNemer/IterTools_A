@@ -1,26 +1,24 @@
-#ifndef ITERATORSTRUCT_RANGE_HPP
-#define ITERATORSTRUCT_RANGE_HPP
-using namespace std;
+#ifndef C___RANGE_HPP
+#define C___RANGE_HPP
+
+#include <iostream>
+#include <string>
+
+#pragma once
 
 namespace itertools{
     class range{
         int _start, _end;
 
     public:
-     range(int s, int l)
-            {
-                _start = s;
-                _end = l;
-            }
-       
-
+    typedef int value_type;
+     range(int s, int l):_start(s),_end(l){}
+            
         class iterator{
             int _num;
         public:
-            iterator(int start = 0)
-                    {
-                        _num = start;
-                    }
+            iterator(int start):
+                        _num(start){}
             
             iterator& operator=(const iterator& other){
                 if(this != &other)
@@ -28,18 +26,18 @@ namespace itertools{
                 return *this;
             };
             iterator& operator ++(){
-                _num++;
+                ++_num;
                 return *this;
             }
             iterator operator ++(int){
                 iterator tmp = *this;
-                _num++;
+                ++_num;
                 return tmp;
             }
-            bool operator ==(const iterator& other) {
+            bool operator ==(const iterator& other) const{
                 return (_num == other._num);
             }
-            bool operator !=(const iterator& other) {
+            bool operator !=(const iterator& other) const{
                 return (_num != other._num);
             }
             int operator *(){

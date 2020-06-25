@@ -1,57 +1,103 @@
+
+#ifndef ITERATORSTRUCT_COMPRESS_HPP
+#define ITERATORSTRUCT_COMPRESS_HPP
+
+#pragma once
+#include <iostream>
+
+
 namespace itertools
 {
 
-    template <typename T1, typename T2>
+    template <class T1, class T2>
     class compress
     {
-    private:
-        T1 m_container;
-        T2 m_bool_container;
+    
+        const T1& m_container;
+        const T2& m_bool_container;
 
     public:
+    compress(const T1& container,const  T2& bool_container):
+    m_container(container),
+    m_bool_container(bool_container)
+    {}
+
+
+
         /* the iterator */
         class iterator
         {
+            
+            const compress& comp;
+            decltype(m_container.begin()) iterObj;
+            decltype(m_bool_container.begin()) iterBool;
         public:
-            iterator(typename T1::iterator from, typename T1::iterator to, typename T2::iterator bool_itr) : m_begin(from),
-                                                                                                             m_end(to),
-                                                                                                             m_bool_itr(bool_itr),
-                                                                                                             m_current_true(*from) {}
-            iterator(const iterator &other) : m_begin(other.m_begin),
-                                              m_end(other.m_end),
-                                              m_bool_itr(other.m_bool_itr),
-                                              m_current_true(other.m_current_true) {}
-            decltype(*(m_container.begin())) operator*() const
+            iterator(const compress& compress_func,
+            decltype(m_container.begin()) iter_Obj,
+            decltype(m_bool_container.begin()) iter_Bool) :
+            iterObj(iter_Obj), comp(compress_func)
             {
-                return m_current_true;
-            }
-            iterator &operator++()
-            {
-                return *this;
-            }
-            bool operator!=(const iterator &other) const
-            {
-                return false;
+                if(iterBool!=compress_func.m_bool_container.end()) iterBool=iter_Bool;
+                while(iterBool!=comp.m_bool_container.end() && *iterBool == false) {
+                    iterObj++;
+                    iterBool++;
+                }
             }
 
-        private:
-            typename T1::iterator m_begin;
-            typename T1::iterator m_end;
-            typename T2::iterator m_bool_itr;
-            decltype(*(m_container.begin())) m_current_true;
+
+            iterator(const iterator &other) : iterObj(other.iterObj),
+                                              iterBool(other.iterBool),
+                                             comp(other.comp) {}
+
+
+
+             iterator& operator++(){
+                ++iterObj;
+                ++iterBool;
+                while(iterBool!=comp.m_bool_container.end() && !(*iterBool)) {
+                    iterObj++;
+                    iterBool++;
+                }
+                return *this; 
+            }
+
+        const iterator operator++(int){
+                iterator temp = *this;
+                while(iterBool!=comp.m_bool_container.end() && !(*iterBool)) {
+                    iterObj++;
+                    iterBool++;
+                }
+                return temp;
+            }
+
+            bool operator==(const iterator& it) const{
+                return iterObj == it.iterObj;
+                
+            }
+
+            bool operator!=(const iterator& it) const{
+                return (iterObj != it.iterObj);
+                
+            }
+
+            auto operator*(){
+                return *iterObj;
+            }
+
+        
         };
 
-    public:
         /* compress methods - decleration */
-        compress(T1 container, T2 bool_container) : m_container(container),
-                                                    m_bool_container(bool_container) {}
-        iterator begin()
+       // compress(T1 container, T2 bool_container) : m_container(container),
+         //                                           m_bool_container(bool_container) {}
+        iterator begin() const
         {
-            return iterator{m_container.begin(), m_container.end(), m_bool_container.begin()};
+            return iterator(*this,m_container.begin(), m_bool_container.begin());
         }
-        iterator end()
+        iterator end() const
         {
-            return iterator{m_container.end(), m_container.end(), m_bool_container.end()};
+            return iterator(*this,m_container.end(), m_bool_container.end());
         }
     };
 } 
+#endif
